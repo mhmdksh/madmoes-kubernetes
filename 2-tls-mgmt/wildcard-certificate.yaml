@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-giveth-io
+spec:
+  dnsNames:
+  - '*.mydomain.com'
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  secretName: wildcard-mydomain-com-secret
+

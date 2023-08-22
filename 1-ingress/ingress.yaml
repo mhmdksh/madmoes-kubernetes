@@ -1,0 +1,97 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: staging-ingress-backend
+  namespace: backend
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/proxy-read-timeout: "300s"
+    nginx.org/proxy-connect-timeout: "300s"
+    nginx.org/proxy_send_timeout: "300s"
+    nginx.org/client-max-body-size: "30m"
+    nginx.ingress.kubernetes.io/limit-rps: "5"
+    nginx.ingress.kubernetes.io/limit-rpm: "300"
+    nginx.ingress.kubernetes.io/limit-connections: "10"
+    nginx.ingress.kubernetes.io/proxy-protocol: "true"
+
+spec:
+  tls:
+  - hosts:
+    - app1.staging.k8s.mydomain.io
+    - app2.staging.k8s.mydomain.io
+    secretName: wildcard-mydomain-com-secret
+  rules:
+  - host: app1.staging.k8s.mydomain.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app1
+            port:
+              number: 3000
+
+  - host: app2.staging.k8s.mydomain.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app2
+            port:
+              number: 3001
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: staging-ingress-backend-admin
+  namespace: backend
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/proxy-read-timeout: "300s"
+    nginx.org/proxy-connect-timeout: "300s"
+    nginx.org/proxy_send_timeout: "300s"
+    nginx.org/client-max-body-size: "30m"
+    nginx.ingress.kubernetes.io/limit-rps: "5"
+    nginx.ingress.kubernetes.io/limit-rpm: "300"
+    nginx.ingress.kubernetes.io/limit-connections: "10"
+    nginx.ingress.kubernetes.io/proxy-protocol: "true"
+    nginx.ingress.kubernetes.io/whitelist-source-range: "111.111.111.111/32"
+
+spec:
+  tls:
+  - hosts:
+    - app1.staging.k8s.mydomain.io
+    - app2.staging.k8s.mydomain.io
+    secretName: wildcard-mydomain-com-secret
+  rules:
+  - host: app1.staging.k8s.mydomain.io
+    http:
+      paths:
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: app1
+            port:
+              number: 3000
+
+  - host: app2.staging.k8s.mydomain.io
+    http:
+      paths:
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: app2
+            port:
+              number: 3001
